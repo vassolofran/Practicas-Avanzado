@@ -1,0 +1,511 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{enumitem}
+\geometry{a4paper, margin=1in}
+\setlength{\parskip}{0.6em}
+\setlist{noitemsep}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Análisis Avanzado - Práctica 1},
+    pdfpagemode=UseOutlines
+}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Teorema}[section]
+\newtheorem{lemma}[theorem]{Lema}
+\newtheorem{corollary}[theorem]{Corolario}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definición}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Observación}
+\newtheorem{example}[theorem]{Ejemplo}
+
+% --- Estilo del entorno remark: título "Observación" en negrita ---
+\makeatletter
+\def\th@remark{%
+  \thm@headfont{\bfseries}% título del encabezado en negrita
+  \normalfont               % cuerpo del texto en redonda
+}
+\makeatother
+% ------------------------------------------------------------------
+
+\title{\textbf{Resolución Práctica 1 \\ Análisis Avanzado}}
+\author{Francisco Vassolo}
+\date{26 de agosto de 2025}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent \textbf{Prefacio y uso recomendado.} Este documento contiene una \emph{resolución detallada} de cada ejercicio de la Práctica 1: la idea principal, todos los pasos intermedios, cálculos y justificaciones formales aparecen explícitamente para que la solución sea completamente verificable paso a paso.
+
+\medskip
+
+\noindent \textbf{Importante:} se ruega usar estas soluciones \textbf{como herramienta de verificación} o \textbf{únicamente} en caso de que, después de haber intentado resolver cada ejercicio por un tiempo razonable y haber quedado atascado, se necesite desbloquear el avance. Si se consultan las soluciones sin haber intentado primero resolver los ejercicios por cuenta propia, se reduce considerablemente el aprendizaje y la consolidación de los métodos. 
+
+\medskip
+\end{abstract}
+
+\tableofcontents
+\bigskip
+
+\section*{Notación y recordatorios}
+\addcontentsline{toc}{section}{Notación y recordatorios}
+
+\paragraph{Convención.} En este documento adoptamos \(\mathbb{N}=\{1,2,3,\dots\}\).
+
+Recordamos dos hechos básicos que usamos constantemente:
+
+\begin{lemma}[Propiedad arquimediana]
+Para todo \(x\in\mathbb R\) existe \(n\in\mathbb N\) tal que \(n>x\). En particular, para todo \(\varepsilon>0\) existe \(n\in\mathbb N\) tal que \(1/n<\varepsilon\).
+\end{lemma}
+
+\begin{lemma}[Principio del buen orden para \(\mathbb Z\)]
+Todo subconjunto no vacío de \(\mathbb Z\) que está acotado inferiormente tiene un elemento mínimo.
+\end{lemma}
+
+% ======== Definiciones añadidas ========
+\begin{definition}[Cota superior]
+Sea \(E \subseteq \mathbb{R}\). Decimos que \(M \in \mathbb{R}\) es una \emph{cota superior} de \(E\) si
+\[
+\forall x \in E,\quad x \le M.
+\]
+Decimos que \(E\) está \emph{acotado superiormente} si existe al menos una cota superior de \(E\).
+\end{definition}
+
+\begin{definition}[Supremo]
+Sea \(E \subseteq \mathbb{R}\) no vacío y acotado superiormente.
+Decimos que \(s \in \mathbb{R}\) es el \emph{supremo} de \(E\) si:
+\begin{enumerate}
+    \item \(s\) es cota superior de \(E\), i.e. \(\forall x \in E,\; x \le s\);
+    \item si \(M\) es otra cota superior de \(E\), entonces \(s \le M\).
+\end{enumerate}
+En símbolos, \(s=\sup E\). Intuitivamente, \(s\) es la \emph{menor} de todas las cotas superiores de \(E\).
+\end{definition}
+
+\begin{definition}[Ínfimo]
+Sea \(E \subseteq \mathbb{R}\) no vacío y acotado inferiormente.
+Decimos que \(i \in \mathbb{R}\) es el \emph{ínfimo} de \(E\) si:
+\begin{enumerate}
+    \item \(i\) es cota inferior de \(E\), i.e. \(\forall x \in E,\; i \le x\);
+    \item si \(m\) es otra cota inferior de \(E\), entonces \(m \le i\).
+\end{enumerate}
+En símbolos, \(i=\inf E\). Intuitivamente, \(i\) es la \emph{mayor} de todas las cotas inferiores de \(E\).
+\end{definition}
+% =======================================
+
+\begin{remark}
+Aclaración sobre notación: Cuando necesitemos el \emph{menor entero estrictamente mayor} que un real \(x\) lo definiremos explícitamente como
+\[
+\min\{n\in\mathbb Z : n>x\},
+\]
+y cuando necesitemos el \emph{mayor entero estrictamente menor} que un real \(y\) lo denotaremos por
+\[
+\max\{n\in\mathbb Z : n<y\}.
+\]
+Estas construcciones se basan en la propiedad arquimediana y en el principio del buen orden.
+\end{remark}
+
+\newpage
+
+\section{Ejercicio 1}
+\subsection*{Enunciado}
+\textit{Pruebe que si \(x < y + \varepsilon\) para todo \(\varepsilon > 0\) entonces \(x \le y\). Deduzca que si \(|x - y| < \varepsilon\) para todo \(\varepsilon > 0\) entonces \(x = y\).}
+
+\subsection*{Solución detallada}
+
+\paragraph{Idea.} La hipótesis dice que no importa qué tan pequeño sea el margen \(\varepsilon\), siempre se cumple \(x<y+\varepsilon\). Si \(x>y\) existirá una diferencia positiva fija \(\delta=x-y\); tomando \(\varepsilon=\delta\) se obtiene una contradicción. Procedemos con cuidado paso a paso.
+
+\subsubsection*{Parte 1: \(x<y+\varepsilon\ \forall\varepsilon>0 \implies x\le y\).}
+\begin{proof}
+Queremos probar \(x\le y\). Procedemos por contradicción:
+
+\noindent Supongamos que \(x>y\). Entonces la cantidad
+\[
+\delta := x-y
+\]
+satisface \(\delta>0\) porque la diferencia de dos reales con \(x>y\) es positiva.
+
+La hipótesis nos dice que la desigualdad \(x < y + \varepsilon\) es verdadera para \emph{todo} \(\varepsilon>0\). En particular, podemos elegir \(\varepsilon=\delta\) (que es un número positivo), y entonces la hipótesis implica
+\[
+x < y + \delta.
+\]
+Sustituimos \(\delta = x-y\) en el miembro derecho:
+\[
+y + \delta = y + (x-y) = x.
+\]
+Con lo cual obtenemos la desigualdad
+\[
+x < x,
+\]
+que es una contradicción porque ningún número real es estrictamente menor que sí mismo. Por tanto la suposición \(x>y\) es falsa. Esto deja dos posibilidades: \(x<y\) o \(x=y\). En ambos casos se cumple \(x\le y\), que era lo que queríamos demostrar.
+\end{proof}
+
+\subsubsection*{Parte 2: \(|x-y|<\varepsilon\ \forall\varepsilon>0 \implies x=y\).}
+\begin{proof}
+La desigualdad \(|x-y|<\varepsilon\) equivale por definición a
+\[
+-\varepsilon < x-y < \varepsilon.
+\]
+Esto implica simultáneamente las dos desigualdades:
+\[
+x < y + \varepsilon \quad\text{y}\quad y < x + \varepsilon,
+\]
+válidas para todo \(\varepsilon>0\).
+
+Aplicando la Parte 1 a la desigualdad \(x < y + \varepsilon\) (válida para todo \(\varepsilon\)) obtenemos \(x\le y\). Análogamente, aplicando la Parte 1 intercambiando \(x\) y \(y\) a la desigualdad \(y < x + \varepsilon\), obtenemos \(y\le x\).
+
+De \(x\le y\) y \(y\le x\) se sigue \(x=y\). (Recordemos que si dos reales se acotan mutuamente entonces son iguales.)
+\end{proof}
+
+\begin{remark}
+Conclusión práctica: que una diferencia absoluta sea menor que cualquier \(\varepsilon>0\) solo es posible si la diferencia es cero.
+\end{remark}
+
+\newpage
+
+\section{Ejercicio 2: Densidad en los Reales}
+\subsection*{Enunciado}
+\noindent\textit{(a) Si \(y-x>1\), pruebe que existe un entero entre \(x\) e \(y\).}\\
+\noindent\textit{(b) Si \(x<y\), pruebe que existe un racional entre \(x\) e \(y\).}\\
+\noindent\textit{(c) Si \(x<y\), pruebe que existe un irracional entre \(x\) e \(y\).}\\
+\noindent\textit{(d) Si \(x<y\), pruebe que existen infinitos racionales e infinitos irracionales entre \(x\) e \(y\).}
+
+\subsection*{Solución}
+
+\subsubsection*{(a) Existe un entero entre \(x\) e \(y\) si \(y-x>1\).}
+\paragraph{Idea.} Tomamos el \emph{menor} entero estrictamente mayor que \(x\), que existe por buen orden, y mostramos que queda estrictamente menor que \(y\).
+
+\begin{proof}
+Consideremos el conjunto
+\[
+S := \{n\in\mathbb Z : n > x\}.
+\]
+Primero verificamos que \(S\) no es vacío. Por la propiedad arquimediana existe \(N\in\mathbb N\) (y por ende \(N\in\mathbb Z\)) tal que \(N>x\). Por tanto \(N\in S\) y \(S\neq\varnothing\).
+
+Además \(S\) está acotado inferiormente (por ejemplo, por cualquier entero menor o igual que \(x\)). Por el principio del buen orden sobre \(\mathbb Z\), el conjunto \(S\) tiene un mínimo; lo denotamos \(k := \min S\).
+
+Por definición de \(k\) tenemos \(k>x\). Además, por ser mínimo en \(S\), el entero \(k-1\) no pertenece a \(S\). La negación de \(k-1\in S\) significa \(k-1 \le x\). Sumando \(1\) a ambos lados se obtiene
+\[
+k \le x+1.
+\]
+La hipótesis del problema es \(y-x > 1\). Reescribiéndola da \(x+1 < y\). Combinando con la desigualdad anterior:
+\[
+k \le x+1 < y \quad\implies\quad k < y.
+\]
+Así hemos probado \(x < k < y\) y \(k\in\mathbb Z\), es decir, existe un entero entre \(x\) e \(y\).
+\end{proof}
+
+\subsubsection*{(b) Densidad de \(\mathbb{Q}\) en \(\mathbb{R}\).}
+\paragraph{Idea.} Escalamos el intervalo hasta que su longitud supere \(1\) (usando el arquimediano), aplicamos (a) y desescalamos.
+
+\begin{proof}
+Sea \(x<y\). La cantidad \(y-x\) es positiva, por lo tanto por la propiedad arquimediana (ver definicion arriba, en particular la idea de \(1/n<\varepsilon\)) existe \(n\in\mathbb N\) tal que
+\[
+n (y-x) > 1.
+\]
+(De hecho se puede escoger cualquier \(n > \frac{1}{y-x}\); la existencia de tal \(n\) es garantizada por el arquimediano.)
+
+Multiplicamos las desigualdades \(x<y\) por \(n>0\) para obtener \(nx < ny\). Ahora \(ny-nx = n(y-x) > 1\), así que entre \(nx\) y \(ny\) la distancia es mayor que \(1\). Aplicando el inciso (a) al par \(nx\) y \(ny\) existe un entero \(m\in\mathbb Z\) tal que
+\[
+nx < m < ny.
+\]
+Dividiendo la cadena desigualdad por \(n>0\) (la desigualdad se mantiene porque \(n>0\)) obtenemos
+\[
+x < \frac{m}{n} < y.
+\]
+Como \(\frac{m}{n}\in\mathbb Q\), hemos encontrado un racional en \((x,y)\). Esto demuestra la densidad de \(\mathbb Q\) en \(\mathbb R\).
+\end{proof}
+
+\subsubsection*{(c) Densidad de los irracionales en \(\mathbb{Q}\).}
+\paragraph{Idea.} Tomamos un irracional fijo \(\alpha\) (por ejemplo \(\sqrt{2}\)), reducimos el intervalo dividiendo por \(\alpha\), usamos la densidad de \(\mathbb Q\) para encontrar \(q\), y multiplicamos para recuperar el irracional \(q\alpha\). Hay que justificar que \(q\neq 0\) y que \(q\alpha\) es irracional.
+
+\begin{proof}
+Sea \(\alpha := \sqrt{2}\) (lo único que necesitamos es que \(\alpha\) sea un número real irracional y \(\alpha\neq 0\); \(\sqrt{2}\) cumple ambas condiciones). Dado \(x<y\), como \(\alpha>0\) se cumple
+\[
+\frac{x}{\alpha} < \frac{y}{\alpha}.
+\]
+Aplicando la densidad de \(\mathbb Q\) (inciso (b)) a este nuevo intervalo \(\bigl(\tfrac{x}{\alpha},\tfrac{y}{\alpha}\bigr)\) existe un racional \(q\) tal que
+\[
+\frac{x}{\alpha} < q < \frac{y}{\alpha}.
+\]
+Observaciones importantes:
+\begin{itemize}
+  \item \(\alpha>0\) garantiza que al multiplicar por \(\alpha\) las desigualdades conservan el sentido.
+  \item La densidad de \(\mathbb Q\) permite elegir \(q\) distinto de cualquier valor prefijado (por ejemplo, distinto de \(0\)) porque hay infinitos racionales en cualquier intervalo abierto no vacío. Por tanto siempre podemos escoger \(q\in\mathbb Q\setminus\{0\}\) con \(\tfrac{x}{\alpha}<q<\tfrac{y}{\alpha}\) si lo deseamos.
+\end{itemize}
+
+Multiplicando por \(\alpha\) obtenemos
+\[
+x < q\alpha < y.
+\]
+Si por contradicción \(q\alpha\in\mathbb Q\), entonces \(q\alpha=r\) para algún \(r\in\mathbb Q\). Si además \(q\neq 0\) se deduce \(\alpha=r/q\in\mathbb Q\), contradicción. Por tanto \(q\alpha\) es irracional y se encuentra en \((x,y)\).
+\end{proof}
+
+\subsubsection*{(d) Densidad de los irracionales en \(\mathbb{R}\).}
+
+\textbf{Idea:} Para obtener un irracional entre \(x\) e \(y\), podemos aprovechar el resultado del inciso (b), que nos garantiza la existencia de un racional en cualquier intervalo real. La idea es fijar un irracional conocido, como \(\sqrt{2}\), y usar el inciso (b) aplicado al intervalo escalado \(\bigl(\tfrac{x}{\sqrt{2}}, \tfrac{y}{\sqrt{2}}\bigr)\). Así conseguimos un racional \(q\) en ese intervalo, y al multiplicarlo por \(\sqrt{2}\) obtenemos un número \(q\sqrt{2}\) que será irracional y estará entre \(x\) e \(y\).
+
+\textbf{Resolución:}  
+Sea \(x,y\in\mathbb{R}\) con \(x<y\), y sea \(\alpha=\sqrt{2}\). Como \(\alpha>0\), se cumple
+\[
+\frac{x}{\alpha} < \frac{y}{\alpha}.
+\]
+Por el inciso (b), aplicado al intervalo \(\bigl(\tfrac{x}{\alpha},\tfrac{y}{\alpha}\bigr)\), existe un racional \(q\in\mathbb{Q}\) tal que
+\[
+\frac{x}{\alpha} < q < \frac{y}{\alpha}.
+\]
+Multiplicando por \(\alpha>0\), obtenemos
+\[
+x < q\alpha < y.
+\]
+
+Ahora, si \(q\alpha\) fuera racional, como \(q\neq 0\), se tendría que \(\alpha=\frac{q\alpha}{q}\) sería racional, contradiciendo que \(\alpha=\sqrt{2}\) es irracional. Por lo tanto, \(q\alpha\) es irracional y además cumple
+\[
+x < q\alpha < y.
+\]
+
+Con esto queda probado que entre \(x\) e \(y\) existe al menos un irracional.
+
+
+\newpage
+
+\section{Ejercicio 3: Caracterización del ínfimo}
+\subsection*{Enunciado}
+\textit{Sea \(A\subseteq\mathbb R\) no vacío y acotado inferiormente. Pruebe la equivalencia:}
+\[
+i=\inf A \iff
+\begin{cases}
+i\le a, & \forall a\in A,\\[4pt]
+\forall \varepsilon > 0,\ \exists a \in A \text{ tal que } i \le a < i + \varepsilon.
+\end{cases}
+\]
+
+\subsection*{Solución detallada}
+
+\paragraph{Idea.} \(i\) es la mayor cota inferior; la primera condición expresa que \(i\) es cota inferior; la segunda que no existe cota inferior estrictamente mayor (o equivalentemente que hay elementos de \(A\) arbitrariamente cerca de \(i\) por encima).
+
+\begin{proof}
+Mostramos las dos implicaciones.
+
+\((\Rightarrow)\) Supongamos \(i=\inf A\). Por definición \(i\) es cota inferior de \(A\), por lo que \(i\le a\) para todo \(a\in A\) (esto prueba la primera condición). Ahora demostramos la segunda por contradicción.
+
+Supongamos que la segunda condición es falsa. Entonces existe \(\varepsilon_0>0\) tal que no hay elementos de \(A\) en el intervalo \([i,i+\varepsilon_0)\). Es decir,
+\[
+\forall a\in A,\quad a \ge i + \varepsilon_0.
+\]
+Pero entonces \(i + \varepsilon_0\) es también una cota inferior de \(A\), porque es menor o igual que cualquier \(a\in A\). Y claramente \(i + \varepsilon_0 > i\). Esto contradice que \(i\) sea la \emph{mayor} cota inferior de \(A\). Por lo tanto la segunda condición debe cumplirse.
+
+\((\Leftarrow)\) Supongamos ahora que se cumplen las dos condiciones dadas. La primera condición implica que \(i\) es cota inferior de \(A\). Queremos probar que \(i\) es la mayor cota inferior, es decir, que cualquier otra cota inferior \(c\) satisface \(c\le i\).
+
+Sea \(c\) una cota inferior cualquiera de \(A\). Si por contradicción \(c>i\), entonces definimos \(\varepsilon := c-i\), que es positivo. Por la segunda condición existe \(a\in A\) tal que
+\[
+i \le a < i + \varepsilon = c.
+\]
+Pero esto contradiría que \(c\) sea cota inferior, porque la existencia de tal \(a\) muestra que \(a<c\). Por tanto no puede ocurrir \(c>i\). Así \(c\le i\) para toda cota inferior \(c\), lo que es exactamente la definición de que \(i\) sea la mayor cota inferior, es decir \(i=\inf A\).
+\end{proof}
+
+\begin{remark}
+La segunda condición es una forma precisa de decir que el ínfimo puede aproximarse por elementos de \(A\) desde la derecha.
+\end{remark}
+
+\newpage
+
+\section{Ejercicio 4: Caracterización del supremo}
+\subsection*{Enunciado}
+\textit{Sea \(B\subseteq\mathbb R\) no vacío y acotado superiormente. Pruebe la equivalencia:}
+\[
+s=\sup B \iff
+\begin{cases}
+b \le s, & \forall b \in B,\\[4pt]
+\forall \varepsilon > 0,\ \exists b \in B \text{ tal que } s - \varepsilon < b \le s.
+\end{cases}
+\]
+
+\subsection*{Solución detallada}
+
+\paragraph{Idea.} Es el dual del ejercicio anterior: el supremo es la menor cota superior y puede aproximarse por debajo por elementos de \(B\).
+
+\begin{proof}
+Mostramos las dos implicaciones.
+
+\((\Rightarrow)\) Si \(s=\sup B\) entonces por definición \(s\) es cota superior, por tanto \(b\le s\) para todo \(b\in B\). Si la segunda condición fuera falsa existiría \(\varepsilon_0>0\) tal que \(\forall b\in B\), \(b\le s-\varepsilon_0\). Entonces \(s-\varepsilon_0\) sería una cota superior de \(B\) menor que \(s\), contradicción con que \(s\) es la menor cota superior. Así la segunda condición se cumple.
+
+\((\Leftarrow)\) Ahora supongamos que se cumplen las dos condiciones. La primera implica que \(s\) es cota superior. Sea \(d\) cualquier cota superior de \(B\). Si \(d<s\) entonces \(\varepsilon := s-d >0\). Por la segunda condición existe \(b\in B\) tal que
+\[
+s-\varepsilon < b \le s.
+\]
+Sustituyendo \(\varepsilon = s-d\) se obtiene \(d < b \le s\). Pero esto contradice que \(d\) sea cota superior (porque hay un elemento \(b\in B\) mayor que \(d\)). Por tanto no es posible \(d<s\), y se concluye \(d\ge s\). Como esto vale para cualquier cota superior \(d\), \(s\) es la menor cota superior, es decir \(s=\sup B\).
+\end{proof}
+
+\begin{remark}
+Al igual que en el caso del ínfimo, la segunda condición expresa que el supremo puede aproximarse por elementos de \(B\) desde la izquierda.
+\end{remark}
+
+\newpage
+
+\section{Ejercicio 5: Subconjuntos acotados}
+\subsection*{Enunciado}
+\textit{Sean \(A\subseteq B\subseteq\mathbb{R}\), con \(A\neq\emptyset\). Pruebe: (a) Si \(B\) está acotado superiormente, también \(A\), y \(\sup A \le \sup B\). (b) Si \(B\) está acotado inferiormente, también \(A\), y \(\inf B \le \inf A\).}
+
+\subsection*{Solución detallada}
+
+\begin{proof}[Prueba de (a)]
+Supongamos \(B\) está acotado superiormente y sea \(s_B:=\sup B\). Por definición de supremo, para todo \(b\in B\) se tiene \(b\le s_B\). Como \(A\subseteq B\), cada elemento \(a\in A\) es también elemento de \(B\), por lo que \(a\le s_B\) para todo \(a\in A\). Esto muestra que \(s_B\) es cota superior de \(A\), es decir, \(A\) está acotado superiormente. 
+
+Ahora \(\sup A\) es la menor de todas las cotas superiores de \(A\). En particular, puesto que \(s_B\) es una cota superior de \(A\), debe cumplirse \(\sup A \le s_B\), que es exactamente \(\sup A \le \sup B\).
+\end{proof}
+
+\begin{proof}[Prueba de (b)]
+Supongamos \(B\) está acotado inferiormente y sea \(i_B:=\inf B\). Por definición \(i_B\le b\) para todo \(b\in B\). Dado que \(A\subseteq B\), entonces \(i_B\le a\) para todo \(a\in A\), es decir \(i_B\) es cota inferior de \(A\). Como \(\inf A\) es la mayor cota inferior de \(A\), debe verificarse \(i_B \le \inf A\). Reescribiendo, \(\inf B \le \inf A\).
+\end{proof}
+
+\begin{remark}
+Ninguna de las hipótesis exige que \(A\) sea no vacío para la parte (a) respecto de acotación superior; sin embargo la igualdad de supremos sólo tiene sentido si \(A\) no es vacío y está acotado superiormente (enunciado la incluye).
+\end{remark}
+
+\newpage
+
+\section{Ejercicio 6: Operaciones con conjuntos}
+\subsection*{Enunciado}
+\textit{(a) Si \(A\) está acotado superiormente, pruebe que \(-A\) lo está inferiormente e \(\inf(-A)=-\sup A\). (b) Si \(c>0\) y \(A\) está acotado superiormente, pruebe que \(\sup(cA)=c\sup A\).}
+
+\subsection*{Solución detallada}
+
+\begin{proof}[Prueba de (a)]
+Sea \(s:=\sup A\). Por definición de supremo, para todo \(a\in A\) se cumple \(a\le s\).
+
+Multiplicamos por \(-1\) (operación que invierte el sentido de las desigualdades): para todo \(a\in A\),
+\[
+-a \ge -s.
+\]
+Recordemos que \(-A := \{ -a : a\in A \}\). Entonces la desigualdad anterior dice exactamente que para todo \(x\in -A\) (con \(x=-a\)) se tiene \(x\ge -s\). Esto significa que \(-s\) es una cota inferior de \(-A\), por lo tanto \(-A\) está acotado inferiormente.
+
+Ahora hay que probar que \(-s\) es la \emph{mayor} de las cotas inferiores de \(-A\), es decir \(\inf(-A)=-s\). Tomemos \(m\) una cota inferior cualquiera de \(-A\). Por hipótesis \(m\le x\) para todo \(x\in -A\). Es decir,
+\[
+m \le -a \qquad\text{para todo }a\in A.
+\]
+Multiplicando la desigualdad anterior por \(-1\) (invertimos el sentido):
+\[
+-m \ge a \qquad\text{para todo }a\in A.
+\]
+Esto muestra que \(-m\) es una cota superior de \(A\). Como \(s\) es la menor cota superior de \(A\), se tiene \(s \le -m\). Reordenando obtenemos \(m \le -s\). Esto muestra que cualquier cota inferior \(m\) de \(-A\) cumple \(m\le -s\); por tanto \(-s\) es la mayor cota inferior de \(-A\), i.e. \(\inf(-A)=-s\).
+\end{proof}
+
+\begin{proof}[Prueba de (b)]
+Sea \(s:=\sup A\) y supongamos \(c>0\). Para todo \(a\in A\) se tiene \(a\le s\). Multiplicando por \(c>0\) (que conserva el orden) obtenemos \(ca \le cs\). Como \(ca\) recorre los elementos de \(cA:=\{ca : a\in A\}\), esto implica que \(cs\) es una cota superior de \(cA\).
+
+Ahora probamos que es la menor. Sea \(M\) cualquier cota superior de \(cA\); es decir,
+\[
+\forall a\in A,\quad ca \le M.
+\]
+Dividiendo por \(c>0\) (conserva el sentido de la desigualdad) obtenemos
+\[
+\forall a\in A,\quad a \le \frac{M}{c}.
+\]
+Esto muestra que \(M/c\) es una cota superior de \(A\). Como \(s\) es la menor cota superior de \(A\), se cumple \(s \le M/c\). Multiplicando por \(c>0\) volvemos a obtener \(cs \le M\). Concluimos que \(cs\) es la menor cota superior de \(cA\), i.e. \(\sup(cA)=c\sup A\).
+\end{proof}
+
+\begin{remark}
+Si \(c<0\) la fórmula cambia de signo y hay que tener en cuenta la inversión del orden; el enunciado pedía \(c>0\), por eso evitamos ese caso aquí.
+\end{remark}
+
+\newpage
+
+\section{Ejercicio 7: Un teorema de punto fijo}
+\subsection*{Enunciado}
+\textit{Sea \(f:[a,b]\to[a,b]\) una función creciente con \(f(a)>a\). Sea}
+\[
+x_0 = \sup\{x\in[a,b] : f(x)>x\}.
+\]
+\textit{Pruebe que \(f(x_0)=x_0\).}
+
+\subsection*{Solución extremadamente detallada}
+
+\paragraph{Idea.} Definimos \(A:=\{x\in[a,b]:f(x)>x\}\). Dado que \(f(a)>a\), \(A\) no está vacío. Tomamos \(x_0=\sup A\). La prueba consiste en dos desigualdades opuestas:
+
+\begin{enumerate}
+  \item Demostrar \(f(x_0)\le x_0\). (Si fuera \(>\), podríamos encontrar por monotonicidad un \(y>x_0\) en \(A\), contradicción con que \(x_0\) es supremo.)
+  \item Demostrar \(f(x_0)\ge x_0\). (Aproximamos \(x_0\) por una sucesión \(x_n\in A\) y pasamos a límites con la ayuda de monotonicidad.)
+\end{enumerate}
+
+\begin{proof}
+Sea
+\[
+A := \{x\in[a,b] : f(x)>x\}.
+\]
+Primero notamos que \(a\in A\) porque por hipótesis \(f(a)>a\). Por tanto \(A\neq\varnothing\). Además \(A\subseteq[a,b]\) está acotado superiormente (por \(b\), por ejemplo), luego \(x_0 := \sup A\) existe y satisface \(a\le x_0 \le b\).
+
+\textbf{(i) Prueba de \(f(x_0)\le x_0\).} Procedemos por contradicción:
+
+Supongamos \(f(x_0) > x_0\). Entonces la diferencia
+\[
+\delta := f(x_0) - x_0
+\]
+es positiva (\(\delta>0\)). Elegimos un número \(y\) tal que
+\[
+x_0 < y < x_0 + \delta/2.
+\]
+Es posible elegir tal \(y\) porque hay números reales estrictamente entre \(x_0\) y \(x_0+\delta/2\). De la elección resulta \(y < f(x_0)\) (pues \(y < x_0 + \delta/2 < x_0 + \delta = f(x_0)\)) y además \(x_0 < y\).
+
+Ahora usamos que \(f\) es creciente: como \(x_0 < y\), se tiene
+\[
+f(x_0) \le f(y).
+\]
+Combinando \(y < f(x_0)\) con \(f(x_0) \le f(y)\) obtenemos
+\[
+y < f(y).
+\]
+Por definición de \(A\), esto implica \(y\in A\). Pero \(y>x_0\) por construcción, lo que contradice que \(x_0\) fuera una cota superior de \(A\) (recordar que \(x_0=\sup A\)). Esta contradicción muestra que nuestra suposición \(f(x_0)>x_0\) era falsa; por lo tanto \(f(x_0)\le x_0\).
+
+\textbf{(ii) Prueba de \(f(x_0)\ge x_0\).} Usaremos la caracterización del supremo (Ejercicio 4). Dado que \(x_0=\sup A\), para cada \(n\in\mathbb N\) existe \(x_n\in A\) tal que
+\[
+x_0 - \frac{1}{n} < x_n \le x_0.
+\]
+(Esta elección se justifica así: tomar \(\varepsilon := \tfrac{1}{n} > 0\); por la propiedad del supremo existe \(x_n\in A\) con \(x_0-\varepsilon < x_n \le x_0\).)
+
+De la pertenencia \(x_n\in A\) se sabe que \(f(x_n) > x_n\) para todo \(n\). Además los \(x_n\) están acotados por arriba por \(x_0\) (por construcción \(x_n \le x_0\)), y \(x_n \to x_0\) cuando \(n\to\infty\) porque \(x_0 - 1/n < x_n \le x_0\) y el lado izquierdo tiende a \(x_0\).
+
+Como \(f\) es creciente, de \(x_n \le x_0\) se obtiene
+\[
+f(x_n) \le f(x_0).
+\]
+Combinando con \(f(x_n) > x_n\) tenemos
+\[
+x_n < f(x_n) \le f(x_0).
+\]
+Por tanto para todo \(n\) se cumple \(x_n < f(x_0)\). Haciendo \(n\to\infty\) y usando que \(x_n \to x_0\) concluimos
+\[
+x_0 \le f(x_0).
+\]
+Una explicación más formal es: dado cualquier \(\varepsilon>0\) existe \(N\) tal que para \(n\ge N\) se cumple \(x_0 - 1/n > x_0 - \varepsilon\); entonces para tal \(n\) se tiene \(x_0-\varepsilon < x_n < f(x_0)\), de donde \(x_0-\varepsilon < f(x_0)\). Como esto vale para todo \(\varepsilon>0\), por el resultado del Ejercicio 1 se debe tener \(x_0 \le f(x_0)\).
+
+Combinando las desigualdades obtenidas en (i) y (ii) llegamos a
+\[
+x_0 \le f(x_0) \le x_0,
+\]
+lo que implica \(f(x_0)=x_0\). Esto demuestra que \(x_0\) es un punto fijo de \(f\).
+\end{proof}
+
+\begin{remark}
+Observaciones finales:
+\begin{itemize}
+  \item No usamos continuidad de \(f\); la monotonía junto con las propiedades del supremo bastan.
+  \item El argumento es estándar en teoría de orden: el supremo del conjunto donde \(f(x)>x\) es siempre un punto fijo si \(f\) es monótona y el intervalo está mapeado en sí mismo.
+\end{itemize}
+\end{remark}
+
+\end{document}
